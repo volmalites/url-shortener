@@ -1,0 +1,68 @@
+# .NET Core and ASP.NET Core
+bin/
+obj/
+*.csproj.user
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.cache
+*.pubxml
+*.pubxml.user
+*.vs/
+*.vscode/
+.vscode/*
+*.vsconfig
+*.dbmdl
+*.jfm
+*.ncb
+*.aps
+*.bak
+*.log
+*.tlog
+*.idb
+*.pdb
+*.ilk
+*.sdf
+*.opensdf
+*.VC.db
+*.VC.VC.opendb
+*.pidb
+*.svclog
+*.scc
+
+# Build and Publish Output
+[Bb]in/
+[Oo]bj/
+[Pp]ublish/
+[Pp]ublishProfiles/
+wwwroot/build/
+wwwroot/dist/
+
+# Visual Studio Code
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# Sensitive or local configuration files
+appsettings.*.json
+*.config
+*.config.*.backup
+*.config.*.bak
+*.secret
+*.secrets
+*.env
+.env.*
+local.settings.json
+secrets.json
+
+# Dependency directories
+node_modules/
+bower_components/
+
+# Self managed
+api.http
+app.db
