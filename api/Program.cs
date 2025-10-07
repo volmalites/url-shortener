@@ -9,6 +9,17 @@ using BCrypt.Net;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy.WithOrigins("http://localhost:8080")
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
+    });
+});
+
 builder.Services.AddAuthentication("BasicAuthentication")
     .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null);
 
@@ -16,6 +27,7 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
+app.UseCors("AllowFrontend");
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -95,7 +107,7 @@ void UpdateUser(UserRecord user)
 {
     using var conn = new SqliteConnection(connectionString);
     conn.Execute("UPDATE Users SET WalletBalance = @WalletBalance, TotalClicks = @TotalClicks WHERE Id = @Id",
-        new { WalletBalance = user.WalletBalance, TotalClicks = user.TotalClicks, Id = user.Id });
+        new { user.WalletBalance, user.TotalClicks, user.Id });
 }
 
 double CalculatePercentage(int clicks)
@@ -103,7 +115,7 @@ double CalculatePercentage(int clicks)
     return Math.Min(10 + 10 * (clicks / 5), 80);
 }
 
-app.MapGet("/{shortCode}", (string shortCode) =>
+app.MapGet("/{shortCode}", [AllowAnonymous] (string shortCode) =>
 {
     var url = GetShortUrl(shortCode);
     if (url == null) return Results.NotFound();
@@ -123,7 +135,7 @@ app.MapGet("/{shortCode}", (string shortCode) =>
     return Results.Redirect(url.OriginalUrl);
 });
 
-app.MapPost("/api/auth/register", ([FromBody] RegisterDto dto) =>
+app.MapPost("/api/auth/register", [AllowAnonymous] ([FromBody] RegisterDto dto) =>
 {
     if (string.IsNullOrEmpty(dto.Username) || string.IsNullOrEmpty(dto.Password))
         return Results.BadRequest("Invalid username or password");
@@ -164,7 +176,7 @@ app.MapGet("/api/urls", [Authorize] (HttpContext ctx) =>
 
     var userId = GetUserId(username);
     using var conn = new SqliteConnection(connectionString);
-    var urls = conn.Query("SELECT ShortCode, OriginalUrl, Clicks FROM ShortUrls WHERE UserId = @UserId", new { UserId = userId });
+    var urls = conn.Query<ShortUrlRecord>("SELECT ShortCode, OriginalUrl, Clicks FROM ShortUrls WHERE UserId = @UserId", new { UserId = userId });
     return Results.Ok(urls);
 });
 
