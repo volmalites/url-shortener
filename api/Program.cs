@@ -121,6 +121,32 @@ int GetTotalClicksForUser(int userId)
     return conn.QueryFirstOrDefault<int?>("SELECT SUM(Clicks) FROM ShortUrls WHERE UserId = @UserId", new { UserId = userId }) ?? 0;
 }
 
+bool IsValidUrl(string url)
+{
+    if (!Uri.TryCreate(url, UriKind.Absolute, out var uriResult) || 
+        (uriResult.Scheme != Uri.UriSchemeHttp && uriResult.Scheme != Uri.UriSchemeHttps))
+    {
+        return false;
+    }
+
+    var host = uriResult.Host;
+    if (host != "localhost" && !host.Contains('.'))
+    {
+        return false;
+    }
+
+    if (host != "localhost")
+    {
+        var parts = host.Split('.');
+        if (parts.Length < 2 || parts[^1].Length < 2)
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 app.MapGet("/{shortCode}", [AllowAnonymous] (string shortCode) =>
 {
     var url = GetShortUrl(shortCode);
@@ -165,7 +191,13 @@ app.MapPost("/api/urls", [Authorize] ([FromBody] CreateUrlDto dto, HttpContext c
     var user = GetUser(username);
     if (user == null) return Results.Unauthorized();
 
-    if (string.IsNullOrEmpty(dto.OriginalUrl)) return Results.BadRequest("Invalid URL");
+    if (string.IsNullOrEmpty(dto.OriginalUrl)) 
+        return Results.BadRequest(new { Error = "URL is required" });
+
+    if (!IsValidUrl(dto.OriginalUrl))
+    {
+        return Results.BadRequest(new { Error = "Invalid URL. Must be a valid http or https URL with a proper domain (e.g., https://example.com)" });
+    }
 
     var shortCode = GenerateUniqueShortCode();
     using var conn = new SqliteConnection(connectionString);
