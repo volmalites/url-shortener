@@ -189,10 +189,34 @@ app.MapGet("/api/wallet", [Authorize] (HttpContext ctx) =>
     if (user == null) return Results.Unauthorized();
 
     var percentage = CalculatePercentage(user.TotalClicks);
-    var nextIncreaseClicks = (user.TotalClicks / 5 + 1) * 5;
-    var growthInfo = $"Current share: {percentage}%. Next increase at {nextIncreaseClicks} total clicks.";
+    var growthInfo = $"Current share: {percentage}%.";
+    if (percentage < 80.0)
+    {
+        var nextIncreaseClicks = (user.TotalClicks / 5 + 1) * 5;
+        growthInfo += $" Next increase at {nextIncreaseClicks} total clicks.";
+    }
 
     return Results.Ok(new { Balance = user.WalletBalance, Percentage = percentage, GrowthInfo = growthInfo });
+});
+
+app.MapPost("/api/urls/click/{shortCode}", [AllowAnonymous] (string shortCode) =>
+{
+    var url = GetShortUrl(shortCode);
+    if (url == null) return Results.NotFound();
+
+    IncrementClick(url.Id);
+
+    var user = GetUserById(url.UserId);
+    if (user != null)
+    {
+        user.TotalClicks += 1;
+        var perc = CalculatePercentage(user.TotalClicks);
+        var earn = (perc / 100.0) * 10.0;
+        user.WalletBalance += earn;
+        UpdateUser(user);
+    }
+
+    return Results.Ok(new { Message = $"Click recorded for {shortCode}" });
 });
 
 app.Run();
