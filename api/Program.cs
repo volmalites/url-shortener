@@ -115,6 +115,12 @@ double CalculatePercentage(int clicks)
     return Math.Min(10 + 10 * (clicks / 5), 80);
 }
 
+int GetTotalClicksForUser(int userId)
+{
+    using var conn = new SqliteConnection(connectionString);
+    return conn.QueryFirstOrDefault<int>("SELECT SUM(Clicks) FROM ShortUrls WHERE UserId = @UserId", new { UserId = userId });
+}
+
 app.MapGet("/{shortCode}", [AllowAnonymous] (string shortCode) =>
 {
     var url = GetShortUrl(shortCode);
@@ -125,7 +131,7 @@ app.MapGet("/{shortCode}", [AllowAnonymous] (string shortCode) =>
     var user = GetUserById(url.UserId);
     if (user != null)
     {
-        user.TotalClicks += 1;
+        user.TotalClicks = GetTotalClicksForUser(user.Id);
         var perc = CalculatePercentage(user.TotalClicks);
         var earn = (perc / 100.0) * 10.0;
         user.WalletBalance += earn;
@@ -188,15 +194,19 @@ app.MapGet("/api/wallet", [Authorize] (HttpContext ctx) =>
     var user = GetUser(username);
     if (user == null) return Results.Unauthorized();
 
-    var percentage = CalculatePercentage(user.TotalClicks);
+    var totalClicks = GetTotalClicksForUser(user.Id);
+    var percentage = CalculatePercentage(totalClicks);
+    var totalBalance = totalClicks * 10.0;
+    var balance = (percentage / 100.0) * totalBalance; // Recalculate based on current percentage
+    
     var growthInfo = $"Current share: {percentage}%.";
     if (percentage < 80.0)
     {
-        var nextIncreaseClicks = (user.TotalClicks / 5 + 1) * 5;
+        var nextIncreaseClicks = (totalClicks / 5 + 1) * 5;
         growthInfo += $" Next increase at {nextIncreaseClicks} total clicks.";
     }
 
-    return Results.Ok(new { Balance = user.WalletBalance, Percentage = percentage, GrowthInfo = growthInfo });
+    return Results.Ok(new { Balance = balance, TotalBalance = totalBalance, Percentage = percentage, GrowthInfo = growthInfo, TotalClicks = totalClicks });
 });
 
 app.MapPost("/api/urls/click/{shortCode}", [AllowAnonymous] (string shortCode) =>
@@ -209,7 +219,7 @@ app.MapPost("/api/urls/click/{shortCode}", [AllowAnonymous] (string shortCode) =
     var user = GetUserById(url.UserId);
     if (user != null)
     {
-        user.TotalClicks += 1;
+        user.TotalClicks = GetTotalClicksForUser(user.Id);
         var perc = CalculatePercentage(user.TotalClicks);
         var earn = (perc / 100.0) * 10.0;
         user.WalletBalance += earn;
