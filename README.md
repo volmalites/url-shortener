@@ -16,20 +16,20 @@ Url shortener created with .NET and Vue, a wallet for profit sharing using basic
 
 ## Technologies:
 
-Basic Authentication: Secure and simple, storing Base64-encoded credentials in localStorage.
-Vue CLI: Streamlines development with hot-reloading and optimized builds.
-.NET Core: Open-source framework for building the backend API, handling URL shortening and user authentication. 
-Dapper: Micro-ORM for efficient SQL queries on SQLite, managing Users and ShortUrls data.
-BCrypt: Password-hashing library for secure storage of user passwords in the backend.
-Axios: JavaScript HTTP client for frontend API calls.
-Vue Router: Vue.js library for client-side routing.
-Dapper/SQLite: Lightweight and efficient for database operations.
-TerserPlugin/MiniCssExtractPlugin: Optimizes production builds by minifying JS and extracting CSS.
+- Basic Authentication: Secure and simple, storing Base64-encoded credentials in localStorage.
+- Vue CLI: Streamlines development with hot-reloading and optimized builds.
+- .NET Core: Open-source framework for building the backend API, handling URL shortening and user authentication. 
+- Dapper: Micro-ORM for efficient SQL queries on SQLite, managing Users and ShortUrls data.
+- BCrypt: Password-hashing library for secure storage of user passwords in the backend.
+- Axios: JavaScript HTTP client for frontend API calls.
+- Vue Router: Vue.js library for client-side routing.
+- Dapper/SQLite: Lightweight and efficient for database operations.
+- TerserPlugin/MiniCssExtractPlugin: Optimizes production builds by minifying JS and extracting CSS.
 
 ## Running and Deploying for demonstration:
 
-Backend: Run `dotnet run` for the API from with the api/ directory.
-Frontend: From within the client/ directory run `npm run serve` for development, `npm run build` and `npx serve -s dist -p 8080` for further testing in deplayment.
+- Backend: Run `dotnet run` for the API from with the api/ directory.
+- Frontend: From within the client/ directory run `npm run serve` for development, `npm run build` and `npx serve -s dist -p 8080` for further testing in deplayment.
 
 # Security Measures Implemented
 
