@@ -118,7 +118,7 @@ double CalculatePercentage(int clicks)
 int GetTotalClicksForUser(int userId)
 {
     using var conn = new SqliteConnection(connectionString);
-    return conn.QueryFirstOrDefault<int>("SELECT SUM(Clicks) FROM ShortUrls WHERE UserId = @UserId", new { UserId = userId });
+    return conn.QueryFirstOrDefault<int?>("SELECT SUM(Clicks) FROM ShortUrls WHERE UserId = @UserId", new { UserId = userId }) ?? 0;
 }
 
 app.MapGet("/{shortCode}", [AllowAnonymous] (string shortCode) =>
