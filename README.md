@@ -81,7 +81,7 @@ Backend endpoints validate inputs:
 - Simulated clicks use a dedicated endpoint to avoid CORS issues with external redirects, ensuring secure click tracking.
 
 ## File Structure
-
+```
 .
 ├── .gitignore
 ├── api
@@ -118,3 +118,4 @@ Backend endpoints validate inputs:
 │   │       └── index.js
 │   └── vue.config.js
 └── README.md
+```
