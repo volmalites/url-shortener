@@ -29,7 +29,7 @@ Url shortener created with .NET and Vue, a wallet for profit sharing using basic
 ## Running and Deploying for demonstration:
 
 - Backend: Run `dotnet run` for the API from with the api/ directory.
-- Frontend: From within the client/ directory run `npm run serve` for development, `npm run build` and `npx serve -s dist -p 8080` for further testing in deplayment.
+- Frontend: From within the client/ directory run `npm run serve` for development testing. Furthemore `npm run build` and `npx serve -s dist -p 8080` for further testing in deployment.
 
 # Security Measures Implemented
 
